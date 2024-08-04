@@ -1,0 +1,77 @@
+.chatPage {
+  height: 100vh;
+  width: 100vw;
+}
+
+.chatPanel {
+  height: 100vh;
+  border: 1px solid black;
+  border-radius: 10px;
+}
+
+.logoStyle,
+.iconStyle {
+  padding-top: 30%;
+  align-items: center;
+  text-align: center;
+  font-size: 12px;
+}
+.logoStyle {
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.namesDisplayStyling {
+  margin-left: 2%;
+  margin-right: 2%;
+  margin-top: 10%;
+  margin-bottom: 5%;
+  border: 1px solid #e5e5ea;
+  padding: 3%;
+  border-radius: 10px;
+  box-shadow: 5px 10px #e5e5ea;
+}
+.messagesContainer {
+  max-height: 90%;
+  overflow: auto;
+}
+.message-left,
+.message-right {
+  border-radius: 20px;
+  clear: both;
+  margin: 5px;
+  padding: 9px;
+}
+
+.message-left {
+  float: left;
+  background-color: #e5e5ea;
+  color: black;
+  border-top-left-radius: 0;
+}
+.message-right {
+  float: right;
+  background-color: #6291be;
+  color: white;
+  border-top-right-radius: 0;
+}
+
+.time {
+  float: right;
+  font-size: 12px;
+}
+
+.profileDisplay {
+  border: 1px solid #e5e5ea;
+  border-radius: 10px;
+  padding: 2px;
+  box-shadow: 5px 10px#e5e5ea;
+}
+
+.profileDisplay .phoneNoDisplay {
+  font-style: italic;
+}
+
+.send {
+  background-color: green;
+}

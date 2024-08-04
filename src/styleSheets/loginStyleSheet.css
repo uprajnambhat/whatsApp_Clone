@@ -1,0 +1,19 @@
+.loginPageStyle {
+  text-align: center;
+  padding: 5%;
+  height: 99vh;
+  width: 99vw;
+  border: 1px solid #e5e5ea;
+  box-shadow: 5px 10px#e5e5ea;
+}
+.loginPageStyle button {
+  margin-top: 2%;
+}
+
+.active {
+  cursor: pointer;
+}
+
+.disabled button {
+  cursor: not-allowed;
+}

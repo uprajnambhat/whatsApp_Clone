@@ -24,7 +24,7 @@ const Chats = () => {
   const [newMessage, setNewMessage] = useState("");
   const [reciever, setReciever] = useState("");
   const { contactList = [], phoneNum: selectedUserPhoneNo = "" } = selectedUser;
-  
+
   const recieverDetails = metaDataDetails.filter((eachUser) => {
     const { phoneNum = "" } = eachUser;
     return reciever == phoneNum;
@@ -51,6 +51,7 @@ const Chats = () => {
       );
     });
     setSelectedMessages(fromAndToMessages);
+    console.log(fromAndToMessages);
   };
 
   const onMessageSent = () => {

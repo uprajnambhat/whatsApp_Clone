@@ -119,5 +119,4 @@ export const metaData = [
     ],
     password: "ivy2425",
   },
-  
 ];

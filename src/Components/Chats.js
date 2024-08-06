@@ -12,6 +12,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { Button, InputGroup } from "react-bootstrap";
 import { Height } from "@mui/icons-material";
 import Form from "react-bootstrap/Form";
+import axios from "axios";
+import { messages } from "../messages";
 
 const Chats = () => {
   const dispatch = useDispatch();
@@ -20,50 +22,71 @@ const Chats = () => {
     metaDataDetails = [],
     selectedUser = {},
   } = useSelector((state) => state.chatDetails);
+  console.log("testing chatlist", chatList);
+
   const [selectedMessages, setSelectedMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [reciever, setReciever] = useState("");
   const { contactList = [], phoneNum: selectedUserPhoneNo = "" } = selectedUser;
-
   const recieverDetails = metaDataDetails.filter((eachUser) => {
     const { phoneNum = "" } = eachUser;
     return reciever == phoneNum;
   })?.[0];
 
-  useEffect(() => {
-    const msgsToDisplay = chatList.filter((eachChat) => {
-      const { id = "", from = "", to = "", message = "", time = "" } = eachChat;
-      return (
-        (from === reciever || from === selectedUserPhoneNo) &&
-        (to === reciever || to === selectedUserPhoneNo)
-      );
-    });
-    setSelectedMessages([...msgsToDisplay]);
-  }, [chatList]);
+  // useEffect(() => {
+  //   const msgsToDisplay = chatList.filter((eachChat) => {
+  //     const { id = "", from = "", to = "", message = "", time = "" } = eachChat;
+  //     return (
+  //       (from === reciever || from === selectedUserPhoneNo) &&
+  //       (to === reciever || to === selectedUserPhoneNo)
+  //     );
+  //   });
+  //   setSelectedMessages([...msgsToDisplay]);
+  // }, [chatList]);
 
   const onChatClick = (phoneNo) => {
     setReciever(phoneNo);
-    const fromAndToMessages = chatList.filter((eachChat) => {
-      const { id = "", from = "", to = "", message = "", time = "" } = eachChat;
-      return (
-        (from === selectedUserPhoneNo && to === phoneNo) ||
-        (from === phoneNo && to === selectedUserPhoneNo)
-      );
-    });
-    setSelectedMessages(fromAndToMessages);
-    console.log(fromAndToMessages);
+    axios
+      .get(`http://localhost:3004/api/user/chats`, {
+        params: {
+          from_phone: selectedUserPhoneNo,
+          to_phone: phoneNo,
+        },
+      })
+      .then((response) => {
+        setSelectedMessages(response.data);
+      })
+      .catch((error) => {
+        // mock data to dis
+        const fromAndToMessages = messages.filter((eachChat) => {
+          const {
+            id = "",
+            from_phone = "",
+            to_phone = "",
+            message = "",
+            time = "",
+          } = eachChat;
+          return (
+            (from_phone === selectedUserPhoneNo && to_phone === phoneNo) ||
+            (from_phone === phoneNo && to_phone === selectedUserPhoneNo)
+          );
+        });
+        console.log("qqqq", fromAndToMessages);
+        setSelectedMessages(fromAndToMessages);
+        console.log(fromAndToMessages);
+      });
   };
 
   const onMessageSent = () => {
     const msgToUpdate = {
       id: "23",
-      from: selectedUserPhoneNo,
-      to: reciever,
+      from_phone: selectedUserPhoneNo,
+      to_phone: reciever,
       message: newMessage,
       time: new Date()?.toISOString(),
     };
-    const listToUpdate = [...chatList, msgToUpdate];
-
+    const listToUpdate = [...selectedMessages, msgToUpdate];
+    setSelectedMessages(listToUpdate);
     dispatch({
       type: "UPDATE_MESSAGES_LIST",
       payload: listToUpdate,
@@ -142,32 +165,36 @@ const Chats = () => {
                 </span>
               </div>
               <div className="messagesContainer" style={{ height: "85%" }}>
-                {selectedMessages
-                  .sort((a, b) => new Date(a.time) - new Date(b.time))
-                  .map((eachMsg, ind) => {
-                    const {
-                      id = "",
-                      from = "",
-                      to = "",
-                      message = "",
-                      time = "",
-                    } = eachMsg;
-
-                    return (
-                      <div
-                        key={ind}
-                        className={
-                          from === selectedUserPhoneNo
-                            ? "message-right"
-                            : "message-left"
-                        }
-                      >
-                        {message}
-                        <br></br>
-                        <span className="time">{time?.substring(11, 16)}</span>
-                      </div>
-                    );
-                  })}
+                {selectedMessages.map((eachMsg, ind) => {
+                  const {
+                    id = "",
+                    from_phone: from = "",
+                    to_phone: to = "",
+                    message = "",
+                    time = "",
+                  } = eachMsg;
+                  console.log(
+                    "rrr",
+                    from,
+                    selectedUserPhoneNo,
+                    from === selectedUserPhoneNo,
+                    eachMsg
+                  );
+                  return (
+                    <div
+                      key={ind}
+                      className={
+                        from === selectedUserPhoneNo
+                          ? "message-right"
+                          : "message-left"
+                      }
+                    >
+                      {message}
+                      <br></br>
+                      <span className="time">{time?.substring(11, 16)}</span>
+                    </div>
+                  );
+                })}
               </div>
               <div style={{ height: "6%" }}>
                 <div>

@@ -4,7 +4,7 @@ import { metaData } from "../metaData";
 const initialstate = {
   selectedUser: {},
   metaDataDetails: metaData,
-  chatList: messages,
+  chatList: [],
 };
 
 export const chatsReducer = (state = initialstate, action) => {

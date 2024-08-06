@@ -73,9 +73,6 @@ const LoginPage = () => {
 
   return (
     <div className="loginPageStyle">
-      <p>9876543211</p>
-      <p>david1415</p>
-
       <form>
         <input
           type="text"

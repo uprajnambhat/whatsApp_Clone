@@ -24,7 +24,7 @@
 .namesDisplayStyling {
   margin-left: 2%;
   margin-right: 2%;
-  margin-top: 10%;
+  margin-top: 15%;
   margin-bottom: 5%;
   border: 1px solid #e5e5ea;
   padding: 3%;
@@ -74,4 +74,42 @@
 
 .send {
   background-color: green;
+}
+
+.new-contact {
+  margin-top: 15px;
+  text-align: center;
+}
+
+.new-contact button {
+  width: 200px;
+  margin-top: 5px;
+}
+
+.userProfileDisplay {
+  border: 1px solid #e5e5ea;
+  border-radius: 10px;
+  padding: 2px;
+  box-shadow: 5px 10px#e5e5ea;
+  margin-top: 15px;
+}
+
+.chat-container {
+  height: 90%;
+}
+
+.contactDisplay {
+  max-height: 80%;
+  overflow: auto;
+}
+
+.each-chat,
+.pin-chat {
+  display: flex;
+  justify-content: space-between;
+}
+
+.pin-chat {
+  gap: 8px;
+  align-items: center;
 }

@@ -1,3 +1,7 @@
+.login-container {
+  margin-top: 15%;
+}
+
 .loginPageStyle {
   text-align: center;
   padding: 5%;
@@ -6,14 +10,20 @@
   border: 1px solid #e5e5ea;
   box-shadow: 5px 10px#e5e5ea;
 }
-.loginPageStyle button {
-  margin-top: 2%;
+
+.form-group {
+  margin: 10px;
+}
+
+.login-btn {
+  text-align: center;
+  margin-top: 20px;
 }
 
 .active {
   cursor: pointer;
 }
-
+  
 .disabled button {
   cursor: not-allowed;
 }

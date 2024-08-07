@@ -9,11 +9,13 @@ import InsertInvitationIcon from "@mui/icons-material/InsertInvitation";
 import AssessmentIcon from "@mui/icons-material/Assessment";
 import BookmarksIcon from "@mui/icons-material/Bookmarks";
 import { useDispatch, useSelector } from "react-redux";
-import { Button, InputGroup } from "react-bootstrap";
+import { Button, Dropdown, InputGroup } from "react-bootstrap";
 import { Height } from "@mui/icons-material";
 import Form from "react-bootstrap/Form";
 import axios from "axios";
 import { messages } from "../messages";
+import Modal from "react-bootstrap/Modal";
+import PushPinIcon from "@mui/icons-material/PushPin";
 
 const Chats = () => {
   const dispatch = useDispatch();
@@ -26,23 +28,38 @@ const Chats = () => {
 
   const [selectedMessages, setSelectedMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
+  const [addContact, setAddContact] = useState();
+  const [addContactName, setAddContactName] = useState();
+  const [pinnedChat, setPinnedChat] = useState([]);
   const [reciever, setReciever] = useState("");
-  const { contactList = [], phoneNum: selectedUserPhoneNo = "" } = selectedUser;
+  const [show, setShow] = useState(false);
+
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
+  const {
+    contactList = [],
+    name: selectedUserName = "",
+    phoneNum: selectedUserPhoneNo = "",
+  } = selectedUser;
   const recieverDetails = metaDataDetails.filter((eachUser) => {
     const { phoneNum = "" } = eachUser;
     return reciever == phoneNum;
   })?.[0];
 
-  // useEffect(() => {
-  //   const msgsToDisplay = chatList.filter((eachChat) => {
-  //     const { id = "", from = "", to = "", message = "", time = "" } = eachChat;
-  //     return (
-  //       (from === reciever || from === selectedUserPhoneNo) &&
-  //       (to === reciever || to === selectedUserPhoneNo)
-  //     );
-  //   });
-  //   setSelectedMessages([...msgsToDisplay]);
-  // }, [chatList]);
+  // [A,b,c,d,e]
+  //[a,b]
+  const sortedContactList = [...new Set([...pinnedChat, ...contactList])];
+
+  const onChatPinned = (recieverPhoneNo) => {
+    if (pinnedChat.indexOf(recieverPhoneNo) == -1) {
+      setPinnedChat([...pinnedChat, recieverPhoneNo]);
+    } else {
+      const newArray = pinnedChat.filter(
+        (element) => element !== recieverPhoneNo
+      );
+      setPinnedChat(newArray);
+    }
+  };
 
   const onChatClick = (phoneNo) => {
     setReciever(phoneNo);
@@ -57,8 +74,8 @@ const Chats = () => {
         setSelectedMessages(response.data);
       })
       .catch((error) => {
-        // mock data to dis
-        const fromAndToMessages = messages.filter((eachChat) => {
+        // mock data to display
+        const fromAndToMessages = chatList.filter((eachChat) => {
           const {
             id = "",
             from_phone = "",
@@ -79,24 +96,80 @@ const Chats = () => {
 
   const onMessageSent = () => {
     const msgToUpdate = {
-      id: "23",
       from_phone: selectedUserPhoneNo,
       to_phone: reciever,
       message: newMessage,
       time: new Date()?.toISOString(),
     };
-    const listToUpdate = [...selectedMessages, msgToUpdate];
-    setSelectedMessages(listToUpdate);
-    dispatch({
-      type: "UPDATE_MESSAGES_LIST",
-      payload: listToUpdate,
-    });
-    setNewMessage("");
+
+    axios
+      .post("http://localhost:3004/api/user/insertMessages", msgToUpdate)
+      .then((response) => {
+        // const listToUpdate = [...selectedMessages, response.data];
+        // setSelectedMessages(listToUpdate);
+        // dispatch({
+        //   type: "UPDATE_MESSAGES_LIST",
+        //   payload: listToUpdate,
+        // });
+        // setNewMessage("");
+      })
+      .catch((error) => {})
+      .finally(() => {
+        const listToUpdate = [...selectedMessages, msgToUpdate];
+        setSelectedMessages(listToUpdate);
+        dispatch({
+          type: "UPDATE_MESSAGES_LIST",
+          payload: [...chatList, listToUpdate],
+        });
+        setNewMessage("");
+      });
   };
 
   const onNameClick = (selectedName) => {
     return selectedName;
   };
+
+  const onSaveClick = () => {
+    axios
+      .put("http://localhost:3004/api/user/chats/updateContactList", {
+        phoneNo: selectedUserPhoneNo,
+        contactList: [...contactList, addContact],
+      })
+      .then((response) => {
+        const selectedUserDetails = response.data[0];
+        selectedUserDetails.contactList = JSON.parse(
+          selectedUserDetails.contactList
+        );
+        dispatch({
+          type: "UPDATE_SELECTEDUSER_DETAILS",
+          payload: selectedUserDetails,
+        });
+      })
+      .catch((error) => {
+        const selectedUserDetails = { ...selectedUser };
+        selectedUserDetails?.contactList.push(addContact);
+        const updateMetaDataDetails = [...metaDataDetails];
+        const index = updateMetaDataDetails.findIndex((eachDetail) => {
+          return eachDetail.phoneNum == selectedUserPhoneNo;
+        });
+
+        updateMetaDataDetails[index] = selectedUserDetails;
+
+        dispatch({
+          type: "UPDATE_SELECTEDUSER_DETAILS",
+          payload: selectedUserDetails,
+        });
+        dispatch({
+          type: "UPDATE_METADATA_DETAILS",
+          payload: updateMetaDataDetails,
+        });
+      })
+      .finally(() => {
+        handleClose();
+      });
+  };
+
+  console.log(pinnedChat);
 
   return (
     <div className="chatPage">
@@ -134,27 +207,97 @@ const Chats = () => {
             </div>
           </Col>
           <Col className="chatPanel" style={{ width: "25%" }}>
-            {contactList.map((eachPhoneNo, index) => {
-              const selectedName = metaDataDetails.find((eachUserData) => {
-                const {
-                  phoneNum = "",
-                  name = "",
-                  password = "",
-                } = eachUserData;
-                return phoneNum === eachPhoneNo;
-              });
-              return (
-                <div
-                  key={index}
-                  onClick={() => {
-                    onChatClick(eachPhoneNo);
-                  }}
-                  className="namesDisplayStyling"
-                >
-                  {selectedName.name}
-                </div>
-              );
-            })}
+            <div className="chat-container">
+              <div className="userProfileDisplay">
+                <strong>{selectedUserName}</strong> :{" "}
+                <span>{selectedUserPhoneNo}</span>
+              </div>
+              <div className="new-contact">
+                <Button variant="outline-secondary" onClick={handleShow}>
+                  Add Contact
+                </Button>
+              </div>
+
+              <Modal show={show} onHide={handleClose}>
+                <Modal.Header closeButton>
+                  <Modal.Title>Add New Contact</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                  <div className="form-group">
+                    <label>Phone Number</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="phoneNumber"
+                      name="phoneNumber"
+                      aria-describedby="emailHelp"
+                      placeholder="Enter Phone Number"
+                      onChange={(event) => setAddContact(event.target.value)}
+                    />
+                  </div>
+                </Modal.Body>
+                <Modal.Footer>
+                  <Button variant="secondary" onClick={handleClose}>
+                    Close
+                  </Button>
+                  <Button variant="primary" onClick={onSaveClick}>
+                    Save Changes
+                  </Button>
+                </Modal.Footer>
+              </Modal>
+              <div className="contactDisplay">
+                {sortedContactList.map((eachPhoneNo, index) => {
+                  const selectedName = metaDataDetails.find((eachUserData) => {
+                    const {
+                      phoneNum = "",
+                      name = "",
+                      password = "",
+                    } = eachUserData;
+                    return phoneNum === eachPhoneNo;
+                  });
+                  return (
+                    <div
+                      key={index}
+                      onClick={() => onChatClick(eachPhoneNo)}
+                      className="namesDisplayStyling"
+                    >
+                      <div className="each-chat">
+                        {selectedName?.name}
+                        <div className="pin-chat">
+                          {" "}
+                          {pinnedChat.indexOf(selectedName.phoneNum) != -1 && (
+                            <PushPinIcon />
+                          )}
+                          <Dropdown>
+                            <Dropdown.Toggle
+                              variant="secondary"
+                              id="dropdown-basic"
+                            ></Dropdown.Toggle>
+                            <Dropdown.Menu>
+                              <Dropdown.Item
+                                onClick={() => {
+                                  onChatPinned(selectedName.phoneNum);
+                                }}
+                              >
+                                {pinnedChat.indexOf(selectedName.phoneNum) !=
+                                -1 ? (
+                                  <p>Unpin</p>
+                                ) : (
+                                  <p>Pin</p>
+                                )}
+                              </Dropdown.Item>
+                              <Dropdown.Item href="#/action-3">
+                                Delete Chat
+                              </Dropdown.Item>
+                            </Dropdown.Menu>
+                          </Dropdown>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           </Col>
           {reciever && (
             <Col className="chatPanel" style={{ width: "68%" }}>
@@ -173,13 +316,6 @@ const Chats = () => {
                     message = "",
                     time = "",
                   } = eachMsg;
-                  console.log(
-                    "rrr",
-                    from,
-                    selectedUserPhoneNo,
-                    from === selectedUserPhoneNo,
-                    eachMsg
-                  );
                   return (
                     <div
                       key={ind}

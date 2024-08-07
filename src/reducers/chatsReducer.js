@@ -4,7 +4,7 @@ import { metaData } from "../metaData";
 const initialstate = {
   selectedUser: {},
   metaDataDetails: metaData,
-  chatList: [],
+  chatList: messages,
 };
 
 export const chatsReducer = (state = initialstate, action) => {
@@ -18,6 +18,11 @@ export const chatsReducer = (state = initialstate, action) => {
       return {
         ...state,
         chatList: action.payload,
+      };
+    case "UPDATE_METADATA_DETAILS":
+      return {
+        ...state,
+        metaDataDetails: action.payload,
       };
     default:
       return state;

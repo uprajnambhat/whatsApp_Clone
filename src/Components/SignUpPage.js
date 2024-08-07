@@ -5,10 +5,11 @@ import "../styleSheets/loginStyleSheet.css";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const LoginPage = () => {
+const SignUpPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [phoneNo, setPhoneNo] = useState();
+  const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const isDisabled = !!phoneNo && !!password;
   const { metaDataDetails = [] } = useSelector((state) => state.chatDetails);
@@ -23,7 +24,8 @@ const LoginPage = () => {
 
   const onSubmitClick = () => {
     axios
-      .post(`http://localhost:3004/api/user`, {
+      .post(`http://localhost:3004/api/user/signUp`, {
+        name,
         phoneNum: phoneNo,
         password: password,
       })
@@ -42,54 +44,42 @@ const LoginPage = () => {
       })
       .catch((error) => {
         console.log("Error fetching user details:", error);
-        const selectedUserDetails = metaDataDetails.filter((eachUser) => {
-          const { phoneNum = "", password: userPassword = "" } = eachUser;
-          return phoneNo == phoneNum && password == userPassword;
-        })?.[0];
-        if (selectedUserDetails) {
-          dispatch({
-            type: "UPDATE_SELECTEDUSER_DETAILS",
-            payload: selectedUserDetails,
-          });
-          navigate("/Chats");
-        } else {
-          console.log("No user found with the given phone number and password");
-        }
+        const dataToAdd = {
+          phoneNum: phoneNo,
+          name,
+          password,
+          contactList: [],
+        };
+        const updatedMetaDataDetails = [...metaDataDetails, dataToAdd];
+        dispatch({
+          type: "UPDATE_METADATA_DETAILS",
+          payload: updatedMetaDataDetails,
+        });
+        dispatch({
+          type: "UPDATE_SELECTEDUSER_DETAILS",
+          payload: dataToAdd,
+        });
+        navigate("/Chats");
       });
   };
 
   return (
-    // <div className="loginPageStyle">
-    //   <form>
-    //     <input
-    //       type="text"
-    //       placeholder="Enter 10 digits Phone Number"
-    //       value={phoneNo}
-    //       onChange={onPhoneNoUpdate}
-    //     ></input>
-    //   </form>
-    //   <br></br>
-    //   <form>
-    //     <input
-    //       type="password"
-    //       placeholder="Enter password"
-    //       value={password}
-    //       onChange={onPasswordUpdate}
-    //     ></input>
-    //   </form>
-    //   <Button
-    //     className={isDisabled ? "active" : "disabled"}
-    //     variant="success"
-    //     onClick={onSubmitClick}
-    //   >
-    //     Submit
-    //   </Button>
-    // </div>
-
     <div className="container login-container">
       <div className="row d-flex justify-content-center">
         <div className="col-md-4">
           <form id="loginform">
+            <div className="form-group">
+              <label>Name</label>
+              <input
+                type="text"
+                className="form-control"
+                id="name"
+                name="name"
+                aria-describedby="emailHelp"
+                placeholder="Enter Name"
+                onChange={(event) => setName(event.target.value)}
+              />
+            </div>
             <div className="form-group">
               <label>Phone Number</label>
               <input
@@ -114,11 +104,11 @@ const LoginPage = () => {
             </div>
           </form>
           <div className="login-btn">
-            <button className="btn btn-primary" onClick={onSubmitClick}>
+            <button className="btn btn-primary " onClick={onSubmitClick}>
               Submit
             </button>
             <p>
-              Do not have an account? <Link to="/signUp">Sign Up</Link>
+              Already have an account? <Link to="/">Login</Link>
             </p>
           </div>
         </div>
@@ -127,4 +117,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default SignUpPage;

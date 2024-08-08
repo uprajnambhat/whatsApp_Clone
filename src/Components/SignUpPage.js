@@ -30,7 +30,6 @@ const SignUpPage = () => {
         password: password,
       })
       .then((response) => {
-        console.log("data recived", response.data);
         const selectedUserDetails = response.data[0];
         selectedUserDetails.contactList = JSON.parse(
           selectedUserDetails.contactList
@@ -42,24 +41,33 @@ const SignUpPage = () => {
         });
         navigate("/Chats");
       })
-      .catch((error) => {
-        console.log("Error fetching user details:", error);
+      .catch((error) => {})
+      .finally(() => {
         const dataToAdd = {
           phoneNum: phoneNo,
           name,
           password,
           contactList: [],
         };
-        const updatedMetaDataDetails = [...metaDataDetails, dataToAdd];
-        dispatch({
-          type: "UPDATE_METADATA_DETAILS",
-          payload: updatedMetaDataDetails,
+        const duplicateData = metaDataDetails.filter((eachUserData) => {
+          const { phoneNum: exsistingPhoneNo = "" } = eachUserData;
+          return exsistingPhoneNo == phoneNo;
         });
-        dispatch({
-          type: "UPDATE_SELECTEDUSER_DETAILS",
-          payload: dataToAdd,
-        });
-        navigate("/Chats");
+        if (duplicateData.length == 0) {
+          const updatedMetaDataDetails = [...metaDataDetails, dataToAdd];
+
+          dispatch({
+            type: "UPDATE_METADATA_DETAILS",
+            payload: updatedMetaDataDetails,
+          });
+          dispatch({
+            type: "UPDATE_SELECTEDUSER_DETAILS",
+            payload: dataToAdd,
+          });
+          navigate("/Chats");
+        } else {
+          alert("user already exsists, please Login");
+        }
       });
   };
 

@@ -28,7 +28,6 @@ const LoginPage = () => {
         password: password,
       })
       .then((response) => {
-        console.log("data recived", response.data);
         const selectedUserDetails = response.data[0];
         selectedUserDetails.contactList = JSON.parse(
           selectedUserDetails.contactList
@@ -41,7 +40,6 @@ const LoginPage = () => {
         navigate("/Chats");
       })
       .catch((error) => {
-        console.log("Error fetching user details:", error);
         const selectedUserDetails = metaDataDetails.filter((eachUser) => {
           const { phoneNum = "", password: userPassword = "" } = eachUser;
           return phoneNo == phoneNum && password == userPassword;
@@ -53,39 +51,12 @@ const LoginPage = () => {
           });
           navigate("/Chats");
         } else {
-          console.log("No user found with the given phone number and password");
+          alert("No user found with the given phone number and password");
         }
       });
   };
 
   return (
-    // <div className="loginPageStyle">
-    //   <form>
-    //     <input
-    //       type="text"
-    //       placeholder="Enter 10 digits Phone Number"
-    //       value={phoneNo}
-    //       onChange={onPhoneNoUpdate}
-    //     ></input>
-    //   </form>
-    //   <br></br>
-    //   <form>
-    //     <input
-    //       type="password"
-    //       placeholder="Enter password"
-    //       value={password}
-    //       onChange={onPasswordUpdate}
-    //     ></input>
-    //   </form>
-    //   <Button
-    //     className={isDisabled ? "active" : "disabled"}
-    //     variant="success"
-    //     onClick={onSubmitClick}
-    //   >
-    //     Submit
-    //   </Button>
-    // </div>
-
     <div className="container login-container">
       <div className="row d-flex justify-content-center">
         <div className="col-md-4">

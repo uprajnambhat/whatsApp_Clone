@@ -92,6 +92,11 @@ const LoginPage = () => {
               Do not have an account? <Link to="/signUp">Sign Up</Link>
             </p>
           </div>
+          <p>
+            <br></br>
+            For reference: <br></br>
+            Phone Number: 9876543210 <br></br> Password : john1234
+          </p>
         </div>
       </div>
     </div>
